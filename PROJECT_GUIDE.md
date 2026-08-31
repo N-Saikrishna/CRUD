@@ -4,6 +4,35 @@ Contact Manager | COP 4331C | Fall 2026
 
 **Find your name. Read your section. Skim the rest.**
 
+> **Source of truth:** roles and dates come from `Team9_Gantt_Slides.pptx`. If this doc and
+> the Gantt ever disagree, the Gantt wins and this doc gets fixed.
+
+---
+
+## How this is graded — 100 points
+
+| Item | Pts | Owner |
+|---|---|---|
+| PowerPoint submitted on time (all 7, individually) | 5 | everyone |
+| Professional slides | 5 | Haren |
+| All members participate in the talk | 5 | everyone |
+| Gantt chart | 5 | Haren |
+| ERD | 5 | Mohammed |
+| Use case **and** Activity **and** Sequence diagrams | 5 | Haren |
+| SwaggerHub demo (1-2 endpoints, no more) | 5 | Devam |
+| Effective server-side search, partial match | 5 | Pranav |
+| **Lighthouse accessibility report** | 5 | Kareem |
+| Working project demonstration | 20 | everyone |
+| Adherence to current standards | 5 | everyone |
+| Instructor discretionary excellence | 5 | — |
+| **GitHub contribution** — commits, consistency, code, **code reviews**, **documentation** | 25 | individual |
+
+Two of these are easy to lose by forgetting they exist: the **Lighthouse accessibility
+report**, and the fact that the diagram line is **three diagrams, not one**.
+
+The 25-point contribution score counts **code reviews** and **documentation**, not just
+commits. See "Rules for everyone" at the bottom — that is why we use pull requests.
+
 ---
 
 ## What we are building
@@ -18,8 +47,11 @@ Each contact stores: first name, last name, phone, email, and the date it was cr
 - The front end talks to the backend through the API. Never straight to MySQL.
 - Search matches partial text and ignores capitalization. "jo" finds John, Jones, Jobs.
 - No pop-up alerts anywhere except the delete confirmation.
-- The site runs on a real remote server.
-- Every endpoint documented on SwaggerHub. One demoed live.
+- The site runs on a real remote server. Local demos are not allowed.
+- **The app must be reached by a domain name. A raw IP address is not acceptable.**
+- All client-server traffic is JSON, and the client is AJAX — asynchronous calls only.
+- Every endpoint documented on SwaggerHub. **Demo at least one and no more than two.**
+- The live site needs a passing Lighthouse accessibility report.
 
 ---
 
@@ -28,13 +60,17 @@ Each contact stores: first name, last name, phone, email, and the date it was cr
 Some work blocks other work. This is the chain:
 
 **Day 1, in parallel:**
-- Jeremy stands up the server
-- API A writes `db.php`, API B writes `errors.php`, then they agree on the response shape together
-- API B publishes the endpoint contract to Discord
+- Jeremy stands up the server **and buys the domain** — DNS takes hours, so start it first
+- Devam writes `errors.php` and `db.php`, then agrees the response shape with Pranav
+- **Devam publishes the endpoint contract to Discord.** Highest priority item on the team —
+  Kareem and Saikrishna cannot start wiring anything until it exists
+- Haren picks his technical role and claims two endpoints
 
 **Day 2:**
 - Mohammed builds the schema once Jeremy says MySQL is up
 - Front end starts building pages against the contract, no working API needed yet
+- Kareem sets up the HTML baseline (doctype, lang, viewport, real labels) so the
+  accessibility score is built in rather than retrofitted
 
 **Then everyone builds in parallel.**
 
@@ -109,6 +145,25 @@ chmod -R 755 /var/www/html
 
 Skip this and everyone's FileZilla uploads fail.
 
+### 5b. Buy the domain and point it at the droplet
+
+This is a hard requirement. `http://159.203.x.x` scores zero on the demo.
+
+1. Buy a cheap `.com` or `.xyz` (Namecheap, Porkbun, or free through the Student Pack)
+2. In DigitalOcean: **Networking → Domains**, add the domain, point it at the droplet
+3. At the registrar, set nameservers to `ns1/ns2/ns3.digitalocean.com`
+4. DNS takes 15 minutes to a few hours. Start early.
+5. When `http://ourdomain.com` loads the Apache page, post it in Discord
+
+Everyone hardcodes this domain in `urlBase` and in the Swagger `servers:` block. The IP is
+used for `ssh` and FileZilla only.
+
+### 5c. UCF network check — put this on your calendar now
+
+UCF IT sometimes blocks outside domains. **Two days before the presentation, and again one
+day before, open the site while on campus wifi.** If it is blocked, IT can unblock it but it
+takes a day or two. Finding out on presentation morning is a zero on the 20-point demo.
+
 ### 6. Hand off
 
 Post in Discord: the IP, that `/LAMPAPI` exists, and that MySQL is running so Mohammed can start.
@@ -117,7 +172,9 @@ Give SFTP access to the API and front end people. FileZilla: host is the IP, use
 
 ### 7. Later
 
-- Load Person B's `seed.sql` once Mohammed's schema is up
+- Write and load `seed.sql`, **10,000 contacts**, once Mohammed's schema is up. The
+  assignment says assume 10k records, so we test at 10k. Generate it with a script and
+  commit the script too. Include plenty of names starting with "Jo" for the demo search.
 - Do the production deploy and click through every feature before the demo
 
 ### Debugging for the team
@@ -178,7 +235,8 @@ Three deliberate differences from the professor's handout. Do not change them ba
 
 - `Password VARCHAR(255)`, not 50. `password_hash()` returns 60 characters. At 50 it truncates silently and login breaks with no error message anywhere.
 - `DateCreated` is required by the assignment and missing from his example.
-- The indexes keep search fast once Person B's 200 seed rows are loaded.
+- The indexes keep search fast once Jeremy's 10,000 seed rows are loaded. At 10k rows an
+  unindexed search is visibly slow, and slow search costs us the 5-point search item.
 
 No `Colors` table. That was his demo app.
 
@@ -226,23 +284,38 @@ Post in Discord when the schema is live.
 
 ---
 
-# API Developer A — Auth and write path
+# Devam — API, foundation and auth
 
-**Claim A or B in Discord today and tell Haren so this doc gets your name on it.**
+Matches your Gantt row: contract locked week 1, register and login week 2, Swagger current
+throughout, live endpoint demo week 4.
 
-Your split, as you two planned it:
-
-- `db.php` — connection, prepared statement helper, standard JSON response
+- `errors.php` — shared error constants
+- `db.php` — connection, request/response helpers, validation
+- `config.example.php` — committed with fake values. The real `config.php` never is.
+- **The endpoint contract, published in Discord** (the table in Pranav's section)
 - `Register.php` — login uniqueness check, hashing
 - `Login.php`
-- `UpdateContact.php`
-- `DeleteContact.php`
-- Postman collection, one saved request per endpoint
+- SwaggerHub spec covering every endpoint
 - Validation helpers: email format, phone normalization, required fields
 
 ### Do this first, before any endpoint
 
-`db.php` is what every other file imports, including B's. Write it, push it, and tell B it is ready. Then the two of you agree on the response shape together before either of you writes an endpoint. Otherwise you will write six files in two styles and redo half of them.
+Three things, in this order, all on day one:
+
+1. **`errors.php` and `db.php`.** Every other PHP file imports these, including Pranav's.
+   Until they exist and are pushed, nobody can write an endpoint.
+2. **Publish the contract in Discord.** Kareem and Saikrishna are fully blocked until they
+   know what each endpoint takes and returns. It is already written below — you do not have
+   to design it, just post it and own it from there.
+3. **Agree the response shape with Pranav** before either of you writes an endpoint.
+   Otherwise you write six files in two styles and redo half of them.
+
+If the contract changes later, announce it. A silent change breaks the front end with no
+error message pointing anywhere near the cause.
+
+**On `db.php`:** the Gantt has Jeremy down for "PHP to MySQL connection layer and config."
+That means he installs and verifies the PHP MySQL extension on the server and hands you the
+credentials. The actual `db.php` is yours. Do not both wait on each other.
 
 ### config.php
 
@@ -363,23 +436,26 @@ One saved request per endpoint, POST, raw JSON body. Export it as JSON and commi
 
 ---
 
-# API Developer B — Read path and contract
+# Pranav — API, contacts and search
 
-Your split, as you two planned it:
+Matches your Gantt row: spec review week 1, contact CRUD week 2, search week 3, paging and
+error handling week 4.
 
 - `AddContact.php`
 - `SearchContacts.php` — LIKE matching, case insensitivity, LIMIT/OFFSET paging
-- SwaggerHub spec, all six endpoints, request and both response shapes
-- `seed.sql` with ~200 fake contacts
-- Error code constants shared across all endpoints
+- `UpdateContact.php`
+- `DeleteContact.php`
+- Server-side paging and consistent JSON error handling
+- Postman collection, one saved request per endpoint
 - Short README in `/LAMPAPI/` on how to run and test
 
 ### Do this first
 
-Two things, both before your endpoints:
+Review the contract below with Devam and agree the response shape before writing anything.
+Then wait for his `db.php` and `errors.php` to land — every file you write imports them.
 
-1. **`errors.php`.** A imports it in `db.php`, so it blocks their work.
-2. **Publish the endpoint contract in Discord.** Saikrishna and Kareem are completely blocked until they know what each endpoint takes and returns. This is the single highest priority item on the team right now. The full SwaggerHub spec can come later, but the contract goes out today.
+`SearchContacts.php` is worth 5 points on its own and it is the endpoint most likely to be
+demoed live. Test it against all 10,000 seed rows, not three.
 
 ### The contract
 
@@ -466,16 +542,24 @@ $stmt->bind_param("ssssi", $in["firstName"], $in["lastName"],
 
 `"ssssi"` is the type of each parameter in order, four strings then an integer. Wrong types misbehave without erroring.
 
-### seed.sql
+### seed.sql — Jeremy owns this, you depend on it
 
-200 rows, varied names so search and paging are actually testable. Include several starting with "Jo" so the demo search returns something.
+Per the Gantt, Jeremy generates **10,000 contacts** in week 2. You need them loaded before
+you can honestly claim search and paging work, so chase him if they are late.
+
+Do not hand-type 10k rows. Generate them:
 
 ```sql
 INSERT INTO Contacts (FirstName,LastName,Phone,Email,UserID) VALUES
 ('John','Doe','4075550100','jdoe@example.com',1),
 ('Jones','Smith','4075550101','jsmith@example.com',1),
--- ...198 more
+-- ...9,998 more, generated by script and committed alongside the .sql
 ```
+
+Plenty of names starting with "Jo" so the live demo search returns something good.
+
+Once loaded, time the search endpoint. If it is slow, the indexes in Mohammed's schema are
+missing or the query is not using them — check with `EXPLAIN`.
 
 ### SwaggerHub
 
@@ -487,7 +571,7 @@ info:
   title: Team 9 Contact Manager
   version: 1.0.0
 servers:
-  - url: http://OUR_IP/LAMPAPI
+  - url: http://ourdomain.com/LAMPAPI
 paths:
   /Login.php:
     post:
@@ -525,18 +609,60 @@ All six endpoints in that shape, with both the success and error response bodies
 
 ---
 
-# Saikrishna — Front end, auth and testing
+# Kareem — Front end, auth, accessibility and testing
 
-You own `index.html` (login and register), wiring auth to the API, and responsive testing.
+Matches your Gantt row: wireframes week 1, static Bootstrap pages week 2, auth wired week 3,
+responsive and accessibility testing week 4.
 
-You do not need working endpoints to start. You need B's contract. Build the pages now, wire them up when the API lands.
+You own `index.html` (login and register), wiring auth to the API, responsive testing, and
+the Lighthouse accessibility report.
+
+You do not need working endpoints to start. You need Devam's contract. Build the pages now, wire them up when the API lands.
 
 Pull Bootstrap from a CDN. Nothing to install.
+
+### Start every page with this
+
+The professor's demo files skip all of this, and it costs us points on two separate rubric
+lines. Every `.html` file we ship starts here:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Manager</title>
+</head>
+```
+
+Missing `<!DOCTYPE>` or `lang` is an accessibility failure. Missing the viewport tag breaks
+mobile layout *and* fails Lighthouse, so it costs us twice.
+
+### Accessibility — 5 points, and it has to be built in
+
+There is a rubric line for a **Lighthouse accessibility report**. You cannot bolt this on in
+week 4; it is a score Chrome generates against the live site. Build to it from the start:
+
+- **Every input needs a real `<label>`.** A `placeholder` is not a label. This is the most
+  common automatic failure, and the demo files do it wrong on every single field.
+  ```html
+  <label for="loginName">Username</label>
+  <input type="text" id="loginName" placeholder="Username">
+  ```
+- **Contrast at least 4.5:1** for normal text. The demo stylesheet's red `#95060a` on grey
+  `#b2b2b2` computes to 4.29:1 and fails. Bootstrap's defaults pass — use them.
+- Every button has real text, every image has `alt`, headings run `h1` then `h2` in order.
+- Form errors go in a `<div>` tied to the field with `aria-describedby`.
+
+**How to run it:** live site in Chrome → F12 → Lighthouse tab → check Accessibility →
+Analyze. Export the report, commit it, screenshot the score for the slides. Run it once in
+week 2 while the pages are still small and easy to fix.
 
 ### js/code.js
 
 ```js
-const urlBase = 'http://OUR_IP/LAMPAPI';
+const urlBase = 'http://ourdomain.com/LAMPAPI';
 
 let userId = 0;
 
@@ -574,7 +700,10 @@ Test at full desktop width and on an actual phone, not just a resized browser wi
 
 ---
 
-# Kareem — Front end, contacts and search
+# Saikrishna — Front end, contacts and search
+
+Matches your Gantt row: contact list and table UI week 2, CRUD forms and search UI week 3,
+delete confirm and UX polish week 4.
 
 You own `contacts.html`: the list, the add and edit forms, search, and the delete confirmation.
 
@@ -627,18 +756,67 @@ Everything else — success messages, validation errors, save confirmations — 
 
 # Haren — Project manager
 
-- Make sure the server cost is covered, whether that is Student Pack credit or split seven ways
+### Technical role — required
+
+The assignment says a PM must "select the technical role they have the strongest affinity
+for and actively contribute in that area." Coordination alone does not satisfy it, and the
+25-point contribution score is measured on code. **Pair with Devam and Pranav on the API and
+own two endpoints outright.** Put it on the Gantt with your name on it.
+
+### Coordination
+
+- Server cost covered, whether Student Pack credit or split seven ways
 - Repo public, all seven as collaborators
 - Weekly check-in, keep the Gantt current
-- Use case diagram
-- Build the deck, run one full dry run
-- Make sure all seven submit the `.pptx`
+- Enforce the pull request workflow — code reviews are part of the 25 points
+- Build the deck, run one full dry run against a stopwatch
+- Make sure all seven submit the `.pptx` individually. A miss is a zero for that person.
+
+### Three diagrams, not one
+
+The rubric line reads "Use case, **Activity**, and **Sequence** diagrams." All three:
+
+- **Use case** — actors and what they can do: register, log in, add/edit/delete/search
+- **Activity** — flowchart of one process. Add-a-contact is the clean one.
+- **Sequence** — messages over time. Login is the obvious one: browser → `Login.php` →
+  MySQL → back, including the failed-password path.
+
+draw.io does all three. Export PNG.
+
+### Before the presentation, in the signup spreadsheet
+
+Three things, not just the repo link:
+
+- Project title
+- GitHub repository URL
+- **Live application URL — the domain, not an IP**
+
+### Deck sections the rubric asks for
+
+Title / Team members and what each person did / Technology used / Things that went well /
+**Things that did not go well** / Gantt / ERD / API demonstration / App demonstration / Q&A.
+
+### Rehearsal
+
+**12 minutes.** Over 13 costs 5 points, then 5 more per minute after that. Seven speakers
+plus a live Swagger demo plus an app demo is about 90 seconds each — that only works
+rehearsed with a stopwatch. Everyone explains a meaningful piece; saying your name does not
+count.
+
+Slides go on a **USB drive**. There is no time to pull them from Drive or Dropbox.
 
 ---
 
 # Rules for everyone
 
-- **Commit under your own account.** Several small commits, not one big one at the end. This is 25% of your grade.
+- **Commit under your own account.** Several small commits, not one big one at the end.
+  This is 25 of the 100 points.
+- **Work on a branch and open a pull request.** The contribution score explicitly counts
+  **code reviews** and **documentation**, not just commits. Nobody pushes straight to
+  `main`. Every PR gets a real review comment from someone else before it merges — "looks
+  good" is not a review. This is worth real points and it cannot be faked at the end.
+- **The app is reached by our domain, never the IP.** `urlBase`, the Swagger `servers:`
+  block, and anything you demo all use the domain.
 - **Push to GitHub first, then upload to the server.** Files edited only on the droplet never appear in a commit and get overwritten by the next upload.
 - **Never commit passwords or `config.php`.** The repo is public. A password committed once stays in the history forever.
 - **Linux is case sensitive.** `Login.php` and `login.php` are different files.
