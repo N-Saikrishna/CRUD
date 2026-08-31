@@ -21,7 +21,7 @@ Contact Manager | COP 4331C | Fall 2026
 | Use case **and** Activity **and** Sequence diagrams | 5 | Haren |
 | SwaggerHub demo (1-2 endpoints, no more) | 5 | Devam |
 | Effective server-side search, partial match | 5 | Pranav |
-| **Lighthouse accessibility report** | 5 | Kareem |
+| **Lighthouse accessibility report** | 5 | Saikrishna |
 | Working project demonstration | 20 | everyone |
 | Adherence to current standards | 5 | everyone |
 | Instructor discretionary excellence | 5 | — |
@@ -69,7 +69,7 @@ Some work blocks other work. This is the chain:
 **Day 2:**
 - Mohammed builds the schema once Jeremy says MySQL is up
 - Front end starts building pages against the contract, no working API needed yet
-- Kareem sets up the HTML baseline (doctype, lang, viewport, real labels) so the
+- Saikrishna sets up the HTML baseline (doctype, lang, viewport, real labels) so the
   accessibility score is built in rather than retrofitted
 
 **Then everyone builds in parallel.**
@@ -609,103 +609,30 @@ All six endpoints in that shape, with both the success and error response bodies
 
 ---
 
-# Kareem — Front end, auth, accessibility and testing
+# Kareem — Front end, contacts and search
 
-Matches your Gantt row: wireframes week 1, static Bootstrap pages week 2, auth wired week 3,
-responsive and accessibility testing week 4.
+**Already built, ahead of schedule:** `contacts.html`, `contacts.css`, `contacts.js`.
+Those three filenames are now the standard — Saikrishna matches them on the auth side.
 
-You own `index.html` (login and register), wiring auth to the API, responsive testing, and
-the Lighthouse accessibility report.
+You own the contacts page: the list and table, the add and edit forms, search, and the
+delete confirmation.
 
-You do not need working endpoints to start. You need Devam's contract. Build the pages now, wire them up when the API lands.
+Push what you have to `team/frontend` before doing anything else. Work that is not on
+GitHub does not count toward the 25-point contribution score and cannot be reviewed.
+
+You do not need working endpoints to start. You need Devam's contract. Build against it now
+and wire it up when the API lands.
 
 Pull Bootstrap from a CDN. Nothing to install.
 
-### Start every page with this
+### Check your existing page against these before the PR
 
-The professor's demo files skip all of this, and it costs us points on two separate rubric
-lines. Every `.html` file we ship starts here:
+All four are graded, and all four are cheap now and expensive later:
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contact Manager</title>
-</head>
-```
-
-Missing `<!DOCTYPE>` or `lang` is an accessibility failure. Missing the viewport tag breaks
-mobile layout *and* fails Lighthouse, so it costs us twice.
-
-### Accessibility — 5 points, and it has to be built in
-
-There is a rubric line for a **Lighthouse accessibility report**. You cannot bolt this on in
-week 4; it is a score Chrome generates against the live site. Build to it from the start:
-
-- **Every input needs a real `<label>`.** A `placeholder` is not a label. This is the most
-  common automatic failure, and the demo files do it wrong on every single field.
-  ```html
-  <label for="loginName">Username</label>
-  <input type="text" id="loginName" placeholder="Username">
-  ```
-- **Contrast at least 4.5:1** for normal text. The demo stylesheet's red `#95060a` on grey
-  `#b2b2b2` computes to 4.29:1 and fails. Bootstrap's defaults pass — use them.
-- Every button has real text, every image has `alt`, headings run `h1` then `h2` in order.
-- Form errors go in a `<div>` tied to the field with `aria-describedby`.
-
-**How to run it:** live site in Chrome → F12 → Lighthouse tab → check Accessibility →
-Analyze. Export the report, commit it, screenshot the score for the slides. Run it once in
-week 2 while the pages are still small and easy to fix.
-
-### js/code.js
-
-```js
-const urlBase = 'http://ourdomain.com/LAMPAPI';
-
-let userId = 0;
-
-function doLogin() {
-    const login = document.getElementById("loginName").value;
-    const password = document.getElementById("loginPassword").value;
-
-    fetch(urlBase + '/Login.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login: login, password: password })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.error !== "") {
-            document.getElementById("loginResult").innerHTML = data.error;
-            return;
-        }
-        userId = data.id;
-        localStorage.setItem("userId", userId);
-        localStorage.setItem("firstName", data.firstName);
-        window.location.href = "contacts.html";
-    })
-    .catch(err => {
-        document.getElementById("loginResult").innerHTML = err.message;
-    });
-}
-```
-
-Errors go into a `<div>`. Never an `alert()`.
-
-### Responsive testing
-
-Test at full desktop width and on an actual phone, not just a resized browser window. The contact table is what breaks. Bootstrap's `table-responsive` class handles most of it.
-
----
-
-# Saikrishna — Front end, contacts and search
-
-Matches your Gantt row: contact list and table UI week 2, CRUD forms and search UI week 3,
-delete confirm and UX polish week 4.
-
-You own `contacts.html`: the list, the add and edit forms, search, and the delete confirmation.
+- `<!DOCTYPE html>`, `lang="en"`, charset, and viewport meta on the page
+- A real `<label>` on every input, not just a `placeholder`
+- `textContent`, never `innerHTML`, when rendering contact data
+- **No `alert()` anywhere except the delete confirmation**
 
 ### Rendering the table
 
@@ -751,6 +678,111 @@ function confirmDelete(contactId) {
 ```
 
 Everything else — success messages, validation errors, save confirmations — goes into a `<div>`. Use `alert()` while debugging if you want, but strip every one before the demo. This is an easy place to lose points.
+
+---
+
+# Saikrishna — Front end, auth, accessibility and testing
+
+**Your assignment changed.** Kareem got ahead and already built the contacts page, so
+contacts is his. You take the auth side instead. Do not build a contacts page — it exists.
+
+You own:
+
+- `index.html` — the landing page, with both login and register
+- `auth.css` and `auth.js` — matching the `contacts.*` naming Kareem already used
+- Wiring login and register to the API
+- Responsive testing on desktop and a real phone
+- **The Lighthouse accessibility report** — 5 points, see below
+
+You are not blocked. You need Devam's contract, not a working API. Build the pages now and
+wire them up when the endpoints land.
+
+Pull Bootstrap from a CDN. Nothing to install.
+
+### Look at Kareem's files first
+
+Before you write anything, read `contacts.html` and `contacts.css` on `team/frontend`. Match
+his Bootstrap classes, color choices, and layout so the two pages look like one app rather
+than two projects. If he set up shared styles, reuse them instead of writing your own.
+
+### Start every page with this
+
+The professor's demo files skip all of this, and it costs us points on two separate rubric
+lines. Every `.html` file we ship starts here:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Manager</title>
+</head>
+```
+
+Missing `<!DOCTYPE>` or `lang` is an accessibility failure. Missing the viewport tag breaks
+mobile layout *and* fails Lighthouse, so it costs us twice.
+
+### Accessibility — 5 points, and it has to be built in
+
+There is a rubric line for a **Lighthouse accessibility report**. You cannot bolt this on in
+week 4; it is a score Chrome generates against the live site. Build to it from the start:
+
+- **Every input needs a real `<label>`.** A `placeholder` is not a label. This is the most
+  common automatic failure, and the demo files do it wrong on every single field.
+  ```html
+  <label for="loginName">Username</label>
+  <input type="text" id="loginName" placeholder="Username">
+  ```
+- **Contrast at least 4.5:1** for normal text. The demo stylesheet's red `#95060a` on grey
+  `#b2b2b2` computes to 4.29:1 and fails. Bootstrap's defaults pass — use them.
+- Every button has real text, every image has `alt`, headings run `h1` then `h2` in order.
+- Form errors go in a `<div>` tied to the field with `aria-describedby`.
+
+**How to run it:** live site in Chrome → F12 → Lighthouse tab → check Accessibility →
+Analyze. Export the report, commit it, screenshot the score for the slides. Run it once in
+week 2 while the pages are still small and easy to fix.
+
+### js/auth.js
+
+Kareem used `contacts.js`, so yours is `auth.js`. Do not put both in `code.js`.
+
+```js
+const urlBase = 'http://ourdomain.com/LAMPAPI';
+
+let userId = 0;
+
+function doLogin() {
+    const login = document.getElementById("loginName").value;
+    const password = document.getElementById("loginPassword").value;
+
+    fetch(urlBase + '/Login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: login, password: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error !== "") {
+            document.getElementById("loginResult").innerHTML = data.error;
+            return;
+        }
+        userId = data.id;
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("firstName", data.firstName);
+        window.location.href = "contacts.html";
+    })
+    .catch(err => {
+        document.getElementById("loginResult").innerHTML = err.message;
+    });
+}
+```
+
+Errors go into a `<div>`. Never an `alert()`.
+
+### Responsive testing
+
+Test at full desktop width and on an actual phone, not just a resized browser window. The contact table is what breaks. Bootstrap's `table-responsive` class handles most of it.
 
 ---
 
