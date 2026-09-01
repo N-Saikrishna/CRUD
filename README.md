@@ -1,128 +1,86 @@
-# Contact Manager (COP 4331C Small Project)
+# Contact Manager
 
-Fall 2026, Dr. Aashish Yadavally, UCF.
+Team 9. COP 4331C, Fall 2026, UCF.
 
-Web-based contact manager. Users register or log in, then do full CRUD on their own contacts, plus search.
+A website where you make an account, log in, and keep a list of your own contacts.
+You can add, edit, delete, and search them. Each person only sees their own contacts.
 
-## Features required
+Every contact has a first name, last name, phone, email, and the date it was added.
 
-- Login / register (landing page gives both options)
-- Create a contact
-- Read / list contacts
-- Update a contact
-- Delete a contact (this is the only place an alert/dialog is allowed)
-- Search contacts
+## Built with
 
-## Contact record fields (minimum)
+PHP and MySQL on an Ubuntu server running Apache. Plain HTML, CSS, and JavaScript on
+the front end with Bootstrap. The browser never talks to MySQL. It sends JSON to our
+PHP files, and they talk to the database.
 
-| Field | Notes |
+## Who is doing what
+
+| Person | Job |
 |---|---|
-| Name | First and last name preferred |
-| Email | |
-| Phone | |
-| Date created | Set by the system |
+| Haren | Project manager, plus the update and delete endpoints |
+| Mohammed | Database and the ERD |
+| Jeremy | Server, domain, and test data |
+| Devam | API setup, register and login, SwaggerHub |
+| Pranav | API for adding, listing, and searching contacts |
+| Kareem | Contacts page |
+| Saikrishna | Login and register page, accessibility |
 
-## Tech constraints
+## How to work on this repo
 
-- LAMP stack only. No Python.
-- Front end talks to the backend through an API. No direct DB access from the client.
-- REST over HTTP. Ports 80/443 are the convention, not a hard rule.
-- JSON for all request and response bodies.
-- App has to be hosted on a real remote server, not a local machine. Suggested: GoDaddy, Heroku, DigitalOcean, AWS, Azure.
+You cannot push to `main`. It needs a pull request and one approval.
 
-### JSON shape example
+Work on your team's branch instead:
 
-Request:
-```json
-{
-  "search": "Jo"
-}
+- `team/database` for Mohammed and Jeremy
+- `team/api` for Devam, Pranav, and Haren
+- `team/frontend` for Kareem and Saikrishna
+- `team/docs` for Haren
+
+Start each session like this:
+
+```bash
+git checkout main
+git pull
+git checkout team/yourteam
+git pull
 ```
 
-Response:
-```json
-{
-  "results": [
-    { "firstName": "John", "lastName": "Doe" },
-    { "firstName": "Jones", "lastName": "Smith" }
-  ]
-}
-```
+Then commit and push to your branch as often as you want. When something works, open a
+pull request into `main` and ask someone from another team to approve it.
 
-## Search behavior
+When you review, click **Approve**, not Comment. Only Approve unblocks the merge.
 
-- Partial match, case insensitive. Typing `Jo` returns John, Jones, Jobs.
-- Has to work on first name and last name at minimum.
+## Rules from the assignment
 
-## Scalability
+- LAMP only. No Node, no Python.
+- The front end always goes through the API, never straight to MySQL.
+- Search runs on the server. Do not load every contact into the browser and filter there.
+- Search has to match partial text and ignore capitals. Typing "jo" finds John and Jones.
+- No popup alerts anywhere except the one asking if you really want to delete a contact.
+- The site has to run on a real server and be reached by a domain name. An IP address
+  is not allowed.
+- Assume 10,000 contacts and make sure search is still fast.
 
-- Do not load all records into memory. Filter and page on the server side.
-- Assume something like 10,000 contacts and make sure it still returns fast.
+## Things that are graded and easy to forget
 
-## UX rules
+These are worth points and nobody assigns them until it is too late.
 
-- Follow normal UX best practices.
-- No alert boxes except the delete confirmation. Use them during testing only.
-- Test on full-screen desktop and on phones.
-- Bootstrap and jQuery are suggested.
+- **Lighthouse accessibility report.** Chrome scores our live site. Open the site in
+  Chrome, press F12, go to the Lighthouse tab, check Accessibility, and click Analyze.
+  Save the report and screenshot the score for the slides. Run it early. It is much
+  harder to fix at the end. The basics are: every page starts with `<!DOCTYPE html>`
+  and `<html lang="en">`, has a charset and a viewport tag, every input has a real
+  `<label>`, and text has enough contrast against its background.
+- **Three diagrams, not one.** Use case, activity, and sequence. All three are needed.
+- **The ERD** is its own separate item.
+- **SwaggerHub demo.** Document everything, but only demo one or two endpoints live.
+- **Code reviews and documentation count.** The individual part of the grade looks at
+  how often you commit, whether you keep at it, the code you write, the reviews you
+  leave on other people's pull requests, and the docs you help with. Small commits
+  often beats one big one at the end.
+- **Everyone submits the slides.** Not submitting is a zero for that person.
 
-## GitHub
+## Never commit
 
-- All team code lives in one GitHub repo.
-- The repo must be public so the professor and TA can check progress.
-- Add the repo link to the project spreadsheet.
-- Commits are timestamped, so individual contribution is visible.
-
-## API documentation
-
-- Use SwaggerHub (swagger.io) to document and test the API.
-- At least one endpoint has to be demoed live during the presentation.
-- API devs keep it updated so the front end knows what changed.
-
-## Presentation requirements
-
-- Professional PowerPoint slides.
-- Must include: Gantt chart, Use Case diagram, Entity Relationship Diagram.
-- Working demo of login/register, CRUD, and search.
-- At least one SwaggerHub endpoint demoed.
-- Every member speaks, and not just to say their name.
-- Every member submits the .pptx to Webcourses individually.
-- Do not zip the file. Submit before the group presents.
-
-## Team
-
-5 to 7 members, same team through the end of the project.
-
-| Role | Count | Responsibility |
-|---|---|---|
-| Project Manager | 1 | Keeps people on track, can also develop |
-| Database Engineer | 1 | Maintains DB, owns the ERD |
-| API Developer | 2 | Builds endpoints, keeps SwaggerHub current |
-| Front-End Developer | 2 | Builds UI, works off the Swagger docs |
-
-Split by skill, but overlap responsibilities wherever possible so one person going missing does not stall the project.
-
-## Grading
-
-- 75% team grade, same for everyone, with exceptions for people who do not pull their weight.
-- 25% individual, based on GitHub activity and the Gantt chart.
-
-## Timeline from the slides
-
-| Week | Milestone |
-|---|---|
-| 2 - 3 | GitHub repo up, link submitted |
-| 3 | SwaggerHub API docs started |
-| 4 | User experience pass, responsive testing |
-| 5 | Gantt chart, Use Case diagram, ERD done |
-
-## Team expectations
-
-- Weekly meetings, in person or on Discord.
-- DWYSYWD: do what you say you will do.
-- Do not ghost the team. Social loafing gets caught and it hits your grade.
-- If you have a full-time job, plan the time. This is a 4000-level class that feeds into Senior Design.
-
-## Learning curve
-
-You get the basics in class, but the lectures are "getting started" only. Expect to fill gaps with YouTube, online courses, and office hours with the professor or TA.
+Passwords, `config.php`, or anything with a real database password in it. This repo is
+public. Once a password is in the history it stays there.
