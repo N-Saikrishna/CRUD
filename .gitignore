@@ -1,6 +1,8 @@
+LAMPAPI/config.php
 .env
 *.log
 node_modules/
 .vscode/
 .idea/
 .DS_Store
+docker-compose.override.yml
