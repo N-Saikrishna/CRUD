@@ -29,24 +29,28 @@ PHP files, and they talk to the database.
 
 You cannot push to `main`. It needs a pull request and one approval.
 
-Work on your team's branch instead:
+Everyone has their own branch. Push to yours as often as you want.
 
-- `team/database` for Mohammed and Jeremy
-- `team/api` for Devam, Pranav, and Haren
-- `team/frontend` for Kareem and Saikrishna
-- `team/docs` for Haren
+- `feature/database-mohammed`
+- `feature/database-jeremy`
+- `feature/api-devam`
+- `feature/api-pranav`
+- `feature/ui-kareem`
+- `feature/ui-sai`
+- `feature/docs-haren`
+
+There is also `feature/api` for shared API work like the database schema.
 
 Start each session like this:
 
 ```bash
 git checkout main
 git pull
-git checkout team/yourteam
+git checkout feature/your-branch
 git pull
 ```
 
-Then commit and push to your branch as often as you want. When something works, open a
-pull request into `main` and ask someone from another team to approve it.
+When something works, open a pull request into `main` and ask someone else to approve it.
 
 When you review, click **Approve**, not Comment. Only Approve unblocks the merge.
 
