@@ -1,4 +1,5 @@
 LAMPAPI/config.php
+LAMPAPI/config.php
 .env
 *.log
 node_modules/
