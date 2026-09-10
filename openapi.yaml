@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: Contact Manager API
+  version: 0.1.0
+  description: >
+    Skeleton spec for the COP 4331C Small Project Contact Manager, covering
+    the LAMPAPI endpoints that exist today.
+servers:
+  - url: https://REPLACE_WITH_YOUR_DOMAIN.com/LAMPAPI
+    description: Production droplet
+
+tags:
+  - name: Auth
+  - name: Contacts
+  - name: Legacy
+    description: Starter demo endpoints pending migration to the Contacts table
+
+paths:
+  /Login.php:
+    post:
+      tags: [Auth]
+      summary: Log in with a login and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login, password]
+              properties:
+                login:    { type: string, example: demo }
+                password: { type: string, format: password, example: Password123 }
+      responses:
+        '200':
+          description: Always returned, even on failure. Check id > 0 or error.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+
+  /UpdateContact.php:
+    post:
+      tags: [Contacts]
+      summary: Replace all fields on a contact owned by the calling user (full replace, not partial)
+      operationId: updateContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, userId, firstName, lastName, phone, email]
+              properties:
+                id:        { type: integer, example: 7 }
+                userId:    { type: integer, example: 1 }
+                firstName: { type: string, example: John }
+                lastName:  { type: string, example: Doe }
+                phone:     { type: string, example: '4075550101' }
+                email:     { type: string, example: john.doe@example.com }
+      responses:
+        '200':
+          description: Empty error means success; "Contact not found" means no row matched id + userId.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /DeleteContact.php:
+    post:
+      tags: [Contacts]
+      summary: Delete a contact owned by the calling user
+      operationId: deleteContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, userId]
+              properties:
+                id:     { type: integer, example: 7 }
+                userId: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: Empty error means success; "Contact not found" covers both a wrong id and a wrong userId.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /AddColor.php:
+    post:
+      tags: [Legacy]
+      summary: Add a color for a user (starter demo, table not in current schema)
+      operationId: addColor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [color, userId]
+              properties:
+                color:  { type: string, example: blue }
+                userId: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: Always returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /SearchColors.php:
+    post:
+      tags: [Legacy]
+      summary: Search a user's colors (starter demo, table not in current schema)
+      operationId: searchColors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [search, userId]
+              properties:
+                search: { type: string, example: bl }
+                userId: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: On no matches this reuses the Login response shape instead of an empty results array.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SearchColorsResponse'
+                  - $ref: '#/components/schemas/LoginResponse'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string, example: '' }
+
+    LoginResponse:
+      type: object
+      properties:
+        id:        { type: integer, example: 1 }
+        firstName: { type: string, example: Demo }
+        lastName:  { type: string, example: User }
+        error:     { type: string, example: '' }
+
+    SearchColorsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items: { type: string }
+          example: [blue, black]
+        error: { type: string, example: '' }
