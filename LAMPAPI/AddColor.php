@@ -1,6 +1,18 @@
 <?php
+	require_once __DIR__ . '/common.php';
+
 	$inData = getRequestInfo();
-	
+
+	$token = isset($inData["token"]) ? $inData["token"] : "";
+	$expiresAt = isset($inData["expiresAt"]) ? $inData["expiresAt"] : "";
+
+	if( !verifySessionToken( $token, $expiresAt ) )
+	{
+		http_response_code(401);
+		returnWithError( "Invalid or expired session token" );
+		exit();
+	}
+
 	$color = $inData["color"];
 	$userId = $inData["userId"];
 
