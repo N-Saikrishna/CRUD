@@ -116,6 +116,30 @@ function verifySessionToken(string $token, string $expiresAt): bool
     return $expiresDate > new DateTimeImmutable();
 }
 
+function resolveSessionUserId(mysqli $conn, string $token): int
+{
+    if ($token === '') {
+        sendError('Missing required field: token', 401);
+    }
+
+    $stmt = $conn->prepare('SELECT UserID, ExpiresAt FROM Sessions WHERE Token = ? LIMIT 1');
+    $stmt->bind_param('s', $token);
+    $stmt->execute();
+    $session = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$session) {
+        sendError('Invalid session token', 401);
+    }
+
+    $expiresDate = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $session['ExpiresAt']);
+    if ($expiresDate === false || $expiresDate <= new DateTimeImmutable()) {
+        sendError('Session token has expired', 401);
+    }
+
+    return (int)$session['UserID'];
+}
+
 function validateContactFields(string $firstName, string $lastName, string $phone, string $email): void
 {
     if ($firstName === '' && $lastName === '') {

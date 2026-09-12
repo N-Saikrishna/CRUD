@@ -18,20 +18,15 @@ foreach (array('id', 'userId') as $field) {
 }
 
 $token = isset($in["token"]) ? $in["token"] : "";
-$expiresAt = isset($in["expiresAt"]) ? $in["expiresAt"] : "";
-
-if (!verifySessionToken($token, $expiresAt)) {
-    http_response_code(401);
-    sendJson(array("error" => "Invalid or expired session token"));
-}
 
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 if ($conn->connect_error) {
     sendJson(array("error" => "Database connection failed"));
 }
 
-$id     = (int)$in["id"];
-$userId = (int)$in["userId"];
+$userId = resolveSessionUserId($conn, $token);
+
+$id = (int)$in["id"];
 
 $stmt = $conn->prepare("DELETE FROM Contacts WHERE ID=? AND UserID=?");
 $stmt->bind_param("ii", $id, $userId);
