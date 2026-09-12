@@ -1,20 +1,26 @@
 <?php
 
+	require_once __DIR__ . '/common.php';
+
 	$inData = getRequestInfo();
-	
+
+	$token = isset($inData["token"]) ? $inData["token"] : "";
+
 	$searchResults = "";
 	$searchCount = 0;
 
 	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331");
-	if ($conn->connect_error) 
+	if ($conn->connect_error)
 	{
 		returnWithError( $conn->connect_error );
-	} 
+	}
 	else
 	{
-		$stmt = $conn->prepare("select Name from Colors where Name like ? and UserID=?");
-		$colorName = "%" . $inData["search"] . "%";
-		$stmt->bind_param("ss", $colorName, $inData["userId"]);
+		$userId = resolveSessionUserId( $conn, $token );
+
+		$stmt = $conn->prepare("select Name from Colors where LOWER(Name) like LOWER(?) and UserID=?");
+		$colorName = "%" . escapeLike( $inData["search"] ) . "%";
+		$stmt->bind_param("si", $colorName, $userId);
 		$stmt->execute();
 		
 		$result = $stmt->get_result();

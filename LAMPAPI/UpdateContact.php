@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/common.php';
 
 $in = json_decode(file_get_contents('php://input'), true);
 
@@ -16,17 +17,20 @@ foreach (array('id', 'userId', 'firstName', 'lastName', 'phone', 'email') as $fi
     }
 }
 
+$token = isset($in["token"]) ? $in["token"] : "";
+
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 if ($conn->connect_error) {
     sendJson(array("error" => "Database connection failed"));
 }
+
+$userId = resolveSessionUserId($conn, $token);
 
 $firstName = $in["firstName"];
 $lastName  = $in["lastName"];
 $phone     = $in["phone"];
 $email     = $in["email"];
 $id        = (int)$in["id"];
-$userId    = (int)$in["userId"];
 
 $stmt = $conn->prepare(
     "UPDATE Contacts SET FirstName=?, LastName=?, Phone=?, Email=?

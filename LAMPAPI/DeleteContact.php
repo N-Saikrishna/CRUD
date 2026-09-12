@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/common.php';
 
 $in = json_decode(file_get_contents('php://input'), true);
 
@@ -16,13 +17,16 @@ foreach (array('id', 'userId') as $field) {
     }
 }
 
+$token = isset($in["token"]) ? $in["token"] : "";
+
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 if ($conn->connect_error) {
     sendJson(array("error" => "Database connection failed"));
 }
 
-$id     = (int)$in["id"];
-$userId = (int)$in["userId"];
+$userId = resolveSessionUserId($conn, $token);
+
+$id = (int)$in["id"];
 
 $stmt = $conn->prepare("DELETE FROM Contacts WHERE ID=? AND UserID=?");
 $stmt->bind_param("ii", $id, $userId);

@@ -1,6 +1,5 @@
 <?php
 
-// SwaggerHub sends an OPTIONS request before the real POST, so call this first
 function sendHeaders(): void
 {
     header('Content-Type: application/json; charset=utf-8');
@@ -85,18 +84,60 @@ function requireInt(array $body, string $name): int
     return (int)$body[$name];
 }
 
-// VARCHAR limits in MySQL count characters, so measure characters not bytes
-// mbstring is normally present but fall back rather than fatal if it is not
 function textLength(string $value): int
 {
     return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
 }
 
-// Percent and underscore are wildcards inside LIKE, so neutralize them
-// before the user string is wrapped in its own wildcards
 function escapeLike(string $value): string
 {
     return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
+}
+
+function issueSessionToken(): array
+{
+    $token = bin2hex(random_bytes(32));
+    $expiresAt = date('Y-m-d H:i:s', time() + 3600);
+
+    return ['token' => $token, 'expiresAt' => $expiresAt];
+}
+
+function verifySessionToken(string $token, string $expiresAt): bool
+{
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+        return false;
+    }
+
+    $expiresDate = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $expiresAt);
+    if ($expiresDate === false) {
+        return false;
+    }
+
+    return $expiresDate > new DateTimeImmutable();
+}
+
+function resolveSessionUserId(mysqli $conn, string $token): int
+{
+    if ($token === '') {
+        sendError('Missing required field: token', 401);
+    }
+
+    $stmt = $conn->prepare('SELECT UserID, ExpiresAt FROM Sessions WHERE Token = ? LIMIT 1');
+    $stmt->bind_param('s', $token);
+    $stmt->execute();
+    $session = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$session) {
+        sendError('Invalid session token', 401);
+    }
+
+    $expiresDate = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $session['ExpiresAt']);
+    if ($expiresDate === false || $expiresDate <= new DateTimeImmutable()) {
+        sendError('Session token has expired', 401);
+    }
+
+    return (int)$session['UserID'];
 }
 
 function validateContactFields(string $firstName, string $lastName, string $phone, string $email): void

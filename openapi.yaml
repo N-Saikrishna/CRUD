@@ -1,0 +1,245 @@
+openapi: 3.0.3
+info:
+  title: Contact Manager API
+  version: 0.2.0
+servers:
+  - url: https://REPLACE_WITH_YOUR_DOMAIN.com/LAMPAPI
+
+tags:
+  - name: Auth
+  - name: Contacts
+  - name: Legacy
+
+paths:
+  /Register.php:
+    post:
+      tags: [Auth]
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, lastName, login, password]
+              properties:
+                firstName: { type: string, example: Demo }
+                lastName:  { type: string, example: User }
+                login:     { type: string, example: demo }
+                password:  { type: string, format: password, example: Password123 }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegisterResponse' }
+        '400':
+          description: Invalid field
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: Login already taken
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /Login.php:
+    post:
+      tags: [Auth]
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login, password]
+              properties:
+                login:    { type: string, example: demo }
+                password: { type: string, format: password, example: Password123 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /Logout.php:
+    post:
+      tags: [Auth]
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string, example: '5f1c...64 hex chars' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /UpdateContact.php:
+    post:
+      tags: [Contacts]
+      operationId: updateContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, id, userId, firstName, lastName, phone, email]
+              properties:
+                token:     { type: string, example: '5f1c...64 hex chars' }
+                id:        { type: integer, example: 7 }
+                userId: { type: integer, example: 1 }
+                firstName: { type: string, example: John }
+                lastName:  { type: string, example: Doe }
+                phone:     { type: string, example: '4075550101' }
+                email:     { type: string, example: john.doe@example.com }
+      responses:
+        '200':
+          description: OK, or "Contact not found" if it isn't owned by the caller
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /DeleteContact.php:
+    post:
+      tags: [Contacts]
+      operationId: deleteContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, id, userId]
+              properties:
+                token:  { type: string, example: '5f1c...64 hex chars' }
+                id:     { type: integer, example: 7 }
+                userId: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: OK, or "Contact not found" if it isn't owned by the caller
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /AddColor.php:
+    post:
+      tags: [Legacy]
+      operationId: addColor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, color]
+              properties:
+                token:  { type: string, example: '5f1c...64 hex chars' }
+                color:  { type: string, example: blue }
+                userId: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /SearchColors.php:
+    post:
+      tags: [Legacy]
+      operationId: searchColors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, search]
+              properties:
+                token:  { type: string, example: '5f1c...64 hex chars' }
+                search: { type: string, example: bl }
+                userId: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: No matches returns the Login response shape instead of an empty array
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SearchColorsResponse'
+                  - $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string, example: '' }
+
+    RegisterResponse:
+      type: object
+      properties:
+        id:        { type: integer, example: 1 }
+        firstName: { type: string, example: Demo }
+        lastName:  { type: string, example: User }
+        error:     { type: string, example: '' }
+
+    LoginResponse:
+      type: object
+      properties:
+        id:        { type: integer, example: 1 }
+        firstName: { type: string, example: Demo }
+        lastName:  { type: string, example: User }
+        token:     { type: string, example: '5f1c...64 hex chars' }
+        expiresAt: { type: string, example: '2026-09-11 21:22:00' }
+        error:     { type: string, example: '' }
+
+    SearchColorsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items: { type: string }
+          example: [blue, black]
+        error: { type: string, example: '' }
