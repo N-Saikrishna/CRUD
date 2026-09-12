@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once __DIR__ . '/common.php';
 
 $in = json_decode(file_get_contents('php://input'), true);
 
@@ -14,6 +15,14 @@ foreach (array('id', 'userId') as $field) {
     if (!isset($in[$field])) {
         sendJson(array("error" => "Missing required field: " . $field));
     }
+}
+
+$token = isset($in["token"]) ? $in["token"] : "";
+$expiresAt = isset($in["expiresAt"]) ? $in["expiresAt"] : "";
+
+if (!verifySessionToken($token, $expiresAt)) {
+    http_response_code(401);
+    sendJson(array("error" => "Invalid or expired session token"));
 }
 
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
