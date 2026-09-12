@@ -1,25 +1,52 @@
 openapi: 3.0.3
 info:
   title: Contact Manager API
-  version: 0.1.0
-  description: >
-    Skeleton spec for the COP 4331C Small Project Contact Manager, covering
-    the LAMPAPI endpoints that exist today.
+  version: 0.2.0
 servers:
   - url: https://REPLACE_WITH_YOUR_DOMAIN.com/LAMPAPI
-    description: Production droplet
 
 tags:
   - name: Auth
   - name: Contacts
   - name: Legacy
-    description: Starter demo endpoints pending migration to the Contacts table
 
 paths:
+  /Register.php:
+    post:
+      tags: [Auth]
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, lastName, login, password]
+              properties:
+                firstName: { type: string, example: Demo }
+                lastName:  { type: string, example: User }
+                login:     { type: string, example: demo }
+                password:  { type: string, format: password, example: Password123 }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegisterResponse' }
+        '400':
+          description: Invalid field
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: Login already taken
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /Login.php:
     post:
       tags: [Auth]
-      summary: Log in with a login and password
       operationId: login
       requestBody:
         required: true
@@ -33,15 +60,44 @@ paths:
                 password: { type: string, format: password, example: Password123 }
       responses:
         '200':
-          description: Always returned, even on failure. Check id > 0 or error.
+          description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/LoginResponse' }
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /Logout.php:
+    post:
+      tags: [Auth]
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string, example: '5f1c...64 hex chars' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /UpdateContact.php:
     post:
       tags: [Contacts]
-      summary: Replace all fields on a contact owned by the calling user (full replace, not partial)
       operationId: updateContact
       requestBody:
         required: true
@@ -49,17 +105,23 @@ paths:
           application/json:
             schema:
               type: object
-              required: [id, userId, firstName, lastName, phone, email]
+              required: [token, id, userId, firstName, lastName, phone, email]
               properties:
+                token:     { type: string, example: '5f1c...64 hex chars' }
                 id:        { type: integer, example: 7 }
-                userId:    { type: integer, example: 1 }
+                userId: { type: integer, example: 1 }
                 firstName: { type: string, example: John }
                 lastName:  { type: string, example: Doe }
                 phone:     { type: string, example: '4075550101' }
                 email:     { type: string, example: john.doe@example.com }
       responses:
         '200':
-          description: Empty error means success; "Contact not found" means no row matched id + userId.
+          description: OK, or "Contact not found" if it isn't owned by the caller
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -67,7 +129,6 @@ paths:
   /DeleteContact.php:
     post:
       tags: [Contacts]
-      summary: Delete a contact owned by the calling user
       operationId: deleteContact
       requestBody:
         required: true
@@ -75,13 +136,19 @@ paths:
           application/json:
             schema:
               type: object
-              required: [id, userId]
+              required: [token, id, userId]
               properties:
+                token:  { type: string, example: '5f1c...64 hex chars' }
                 id:     { type: integer, example: 7 }
                 userId: { type: integer, example: 1 }
       responses:
         '200':
-          description: Empty error means success; "Contact not found" covers both a wrong id and a wrong userId.
+          description: OK, or "Contact not found" if it isn't owned by the caller
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -89,7 +156,6 @@ paths:
   /AddColor.php:
     post:
       tags: [Legacy]
-      summary: Add a color for a user (starter demo, table not in current schema)
       operationId: addColor
       requestBody:
         required: true
@@ -97,13 +163,19 @@ paths:
           application/json:
             schema:
               type: object
-              required: [color, userId]
+              required: [token, color]
               properties:
+                token:  { type: string, example: '5f1c...64 hex chars' }
                 color:  { type: string, example: blue }
                 userId: { type: integer, example: 1 }
       responses:
         '200':
-          description: Always returned
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -111,7 +183,6 @@ paths:
   /SearchColors.php:
     post:
       tags: [Legacy]
-      summary: Search a user's colors (starter demo, table not in current schema)
       operationId: searchColors
       requestBody:
         required: true
@@ -119,19 +190,25 @@ paths:
           application/json:
             schema:
               type: object
-              required: [search, userId]
+              required: [token, search]
               properties:
+                token:  { type: string, example: '5f1c...64 hex chars' }
                 search: { type: string, example: bl }
                 userId: { type: integer, example: 1 }
       responses:
         '200':
-          description: On no matches this reuses the Login response shape instead of an empty results array.
+          description: No matches returns the Login response shape instead of an empty array
           content:
             application/json:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/SearchColorsResponse'
                   - $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
 components:
   schemas:
@@ -140,12 +217,22 @@ components:
       properties:
         error: { type: string, example: '' }
 
+    RegisterResponse:
+      type: object
+      properties:
+        id:        { type: integer, example: 1 }
+        firstName: { type: string, example: Demo }
+        lastName:  { type: string, example: User }
+        error:     { type: string, example: '' }
+
     LoginResponse:
       type: object
       properties:
         id:        { type: integer, example: 1 }
         firstName: { type: string, example: Demo }
         lastName:  { type: string, example: User }
+        token:     { type: string, example: '5f1c...64 hex chars' }
+        expiresAt: { type: string, example: '2026-09-11 21:22:00' }
         error:     { type: string, example: '' }
 
     SearchColorsResponse:
