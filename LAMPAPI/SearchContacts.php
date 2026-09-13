@@ -37,8 +37,8 @@ $countStmt = $conn->prepare(
 );
 $countStmt->bind_param("iss", $userId, $like, $like);
 $countStmt->execute();
-$countStmt->bind_result($total);
-$countStmt->fetch();
+$countRow = $countStmt->get_result()->fetch_row();
+$total = $countRow[0];
 $countStmt->close();
 
 // The collation is utf8mb4_unicode_ci, which is case insensitive, so
