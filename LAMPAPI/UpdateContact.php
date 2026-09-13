@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/common.php';
 
 $in = json_decode(file_get_contents('php://input'), true);
@@ -11,7 +11,7 @@ function sendJson($obj)
     exit();
 }
 
-foreach (array('id', 'userId', 'firstName', 'lastName', 'phone', 'email') as $field) {
+foreach (array('id', 'firstName', 'lastName', 'phone', 'email') as $field) {
     if (!isset($in[$field])) {
         sendJson(array("error" => "Missing required field: " . $field));
     }
@@ -19,10 +19,7 @@ foreach (array('id', 'userId', 'firstName', 'lastName', 'phone', 'email') as $fi
 
 $token = isset($in["token"]) ? $in["token"] : "";
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
-    sendJson(array("error" => "Database connection failed"));
-}
+$conn = getConnection();
 
 $userId = resolveSessionUserId($conn, $token);
 

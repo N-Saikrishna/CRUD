@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/common.php';
 
 $in = json_decode(file_get_contents('php://input'), true);
@@ -19,10 +19,7 @@ foreach (array('firstName', 'lastName', 'phone', 'email') as $field) {
 
 $token = isset($in["token"]) ? $in["token"] : "";
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
-    sendJson(array("error" => "Database connection failed"));
-}
+$conn = getConnection();
 
 // The contact is tagged with the user the session token belongs to, never
 // with a userId the browser sends, so nobody can file contacts under
