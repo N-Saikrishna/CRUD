@@ -1,0 +1,11 @@
+name: Deployment setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm workflow runs
+        run: echo "Deployment workflow started. Server connection coming next."
