@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
       loadContacts(searchInput.value);
     }
   });
+
+  const addContactForm = document.getElementById("addContactForm");
+  addContactForm.addEventListener("submit", addContact);
 });
 
 function loadContacts(search = "") {
@@ -37,5 +40,32 @@ function loadContacts(search = "") {
       row.insertCell().textContent = c.email;
       row.insertCell().textContent = c.dateCreated;
     });
+  });
+}
+
+function addContact(e) {
+  e.preventDefault();
+
+  const message = document.getElementById("message");
+  message.textContent = "";
+
+  const firstName = document.getElementById("addFirstName").value;
+  const lastName = document.getElementById("addLastName").value;
+  const phone = document.getElementById("addPhone").value;
+  const email = document.getElementById("addEmail").value;
+
+  fetch(urlBase + '/AddContact.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ token: token, firstName: firstName, lastName: lastName, phone: phone, email: email })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error && data.error.length > 0) {
+      message.textContent = data.error;
+      return;
+    }
+    document.getElementById("addContactForm").reset();
+    loadContacts();
   });
 }
