@@ -12,6 +12,12 @@
 
 	<h1>Contacts Manager</h1>
 
+	<div class="input-group mb-3" style="max-width: 400px;">
+		<label for="searchInput" class="visually-hidden">Search contacts</label>
+		<input type="text" id="searchInput" class="form-control" placeholder="Search contacts">
+		<button type="button" id="searchButton" class="btn btn-outline-secondary">Search</button>
+	</div>
+
 	<div class="table-responsive">
 	<table class="table table-hover bg-white">
 		<thead class="table-light">
@@ -21,35 +27,40 @@
 			<th scope="col">Phone #</th>
 			<th scope="col">Email</th>
 			<th scope="col">Date Added</th>
+			<th scope="col">Actions</th>
 		</tr>
 		</thead>
-		<tbody>
-		<tr>
-			<td>Kareem</td>
-			<td>Ali</td>
-			<td>(904) 999-1111</td>
-			<td>kmoney@fbi.gov</td>
-			<td>08-01-2026</td>
-		</tr>
-		<tr>
-			<td>Sai</td>
-			<td>Nandamuri</td>
-			<td>(904) 111-2222</td>
-			<td>sai@gmail.com</td>
-			<td>08-01-2026</td>
-		</tr>
-		<tr>
-			<td>John</td>
-			<td>Doe</td>
-			<td>(407) 123-4567</td>
-			<td>johnpork67@aol.com</td>
-			<td>02-31-2037</td>
-		</tr>
+		<tbody id="contactsBody">
 		</tbody>
 	</table>
 	</div>
 
+	<h2 class="mt-4">Add Contact</h2>
+	<form id="addContactForm" class="row g-2 align-items-end" style="max-width: 700px;">
+		<div class="col">
+			<label for="addFirstName" class="form-label">First Name</label>
+			<input type="text" id="addFirstName" class="form-control" required>
+		</div>
+		<div class="col">
+			<label for="addLastName" class="form-label">Last Name</label>
+			<input type="text" id="addLastName" class="form-control" required>
+		</div>
+		<div class="col">
+			<label for="addPhone" class="form-label">Phone #</label>
+			<input type="text" id="addPhone" class="form-control" required>
+		</div>
+		<div class="col">
+			<label for="addEmail" class="form-label">Email</label>
+			<input type="email" id="addEmail" class="form-control" required>
+		</div>
+		<div class="col-auto">
+			<button type="submit" class="btn btn-primary">Add Contact</button>
+		</div>
+	</form>
+
 </main>
 
+<div id="message" class="text-danger"></div>
+<script src="js/contacts.js"></script>
 </body>
 </html>
