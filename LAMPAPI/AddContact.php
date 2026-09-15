@@ -34,8 +34,8 @@ $email     = trim($in["email"]);
 validateContactFields($firstName, $lastName, $phone, $email);
 
 $stmt = $conn->prepare(
-    "INSERT INTO Contacts (UserID, FirstName, LastName, Phone, Email)
-     VALUES (?, ?, ?, ?, ?)"
+    "INSERT INTO Contacts (UserID, FirstName, LastName, Phone, Email, DateCreated)
+     VALUES (?, ?, ?, ?, ?, NOW())"
 );
 $stmt->bind_param("issss", $userId, $firstName, $lastName, $phone, $email);
 $stmt->execute();

@@ -32,7 +32,7 @@ function registerUser(array $body): array
     }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $conn->prepare('INSERT INTO Users (FirstName, LastName, Login, Password) VALUES (?, ?, ?, ?)');
+    $stmt = $conn->prepare('INSERT INTO Users (FirstName, LastName, Login, Password, DateCreated) VALUES (?, ?, ?, ?, NOW())');
     $stmt->bind_param('ssss', $firstName, $lastName, $login, $hashedPassword);
     $stmt->execute();
     $userId = $stmt->insert_id;
