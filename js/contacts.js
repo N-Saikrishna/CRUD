@@ -2,6 +2,9 @@ const urlBase = '/LAMPAPI';
 const token = localStorage.getItem("token");
 if (!token) { window.location.href = "index.html"; }
 
+let currentPage = 1;
+let currentSearch = "";
+
 document.addEventListener("DOMContentLoaded", () => {
   loadContacts();
 
@@ -20,13 +23,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const addContactForm = document.getElementById("addContactForm");
   addContactForm.addEventListener("submit", addContact);
+
+  document.getElementById("prevPage").addEventListener("click", () => {
+    loadContacts(currentSearch, currentPage - 1);
+  });
+
+  document.getElementById("nextPage").addEventListener("click", () => {
+    loadContacts(currentSearch, currentPage + 1);
+  });
 });
 
-function loadContacts(search = "") {
+function loadContacts(search = currentSearch, page = 1) {
+  currentSearch = search;
+  currentPage = page;
+
   fetch(urlBase + '/SearchContacts.php', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ token: token, search: search, page: 1 })
+    body: JSON.stringify({ token: token, search: search, page: page })
   })
   .then(r => r.json())
   .then(data => {
@@ -35,7 +49,24 @@ function loadContacts(search = "") {
     data.results.forEach(c => {
       renderRow(body, c);
     });
+
+    showResultCount(data, page);
   });
+}
+
+// The server only sends one page at a time, so the count comes from the
+// total it reports rather than from how many rows are on screen.
+function showResultCount(data, page) {
+  const first = data.total === 0 ? 0 : (page - 1) * data.pageSize + 1;
+  const last = first + data.results.length - 1;
+
+  document.getElementById("resultCount").textContent =
+    data.total === 0
+      ? "No contacts found"
+      : "Showing " + first + " to " + last + " of " + data.total + " contacts";
+
+  document.getElementById("prevPage").disabled = page <= 1;
+  document.getElementById("nextPage").disabled = page * data.pageSize >= data.total;
 }
 
 function renderRow(body, c) {
