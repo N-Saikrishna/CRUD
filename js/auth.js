@@ -61,9 +61,12 @@ function doLogin(e) {
 				firstName = jsonObject.firstName;
 				lastName = jsonObject.lastName;
 
-				saveCookie();
-	
-				window.location.href = "color.html";
+				localStorage.setItem("token", jsonObject.token);
+				localStorage.setItem("userId", jsonObject.id);
+				localStorage.setItem("firstName", jsonObject.firstName);
+
+				window.location.href = "contacts.html";
+
 			} catch(err) {
 				resultP.innerHTML = err.message;
 			}
@@ -129,9 +132,3 @@ function doRegister(e) {
 	xhr.send(jsonPayload);
 }
 
-function saveCookie() {
-	let minutes = 20;
-	let date = new Date();
-	date.setTime(date.getTime()+(minutes*60*1000));	
-	document.cookie = "firstName=" + firstName + ",lastName=" + lastName + ",userId=" + userId + ";expires=" + date.toGMTString();
-}
