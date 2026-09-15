@@ -2,7 +2,22 @@ const urlBase = '/LAMPAPI';
 const token = localStorage.getItem("token");
 if (!token) { window.location.href = "index.html"; }
 
-document.addEventListener("DOMContentLoaded", loadContacts);
+document.addEventListener("DOMContentLoaded", () => {
+  loadContacts();
+
+  const searchButton = document.getElementById("searchButton");
+  const searchInput = document.getElementById("searchInput");
+
+  searchButton.addEventListener("click", () => {
+    loadContacts(searchInput.value);
+  });
+
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      loadContacts(searchInput.value);
+    }
+  });
+});
 
 function loadContacts(search = "") {
   fetch(urlBase + '/SearchContacts.php', {
