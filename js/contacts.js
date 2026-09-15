@@ -44,6 +44,11 @@ function loadContacts(search = currentSearch, page = 1) {
   })
   .then(r => r.json())
   .then(data => {
+    if (data.error && data.error.length > 0) {
+      handleLoadError(data.error);
+      return;
+    }
+
     const body = document.getElementById("contactsBody");
     body.replaceChildren();
     data.results.forEach(c => {
@@ -51,7 +56,22 @@ function loadContacts(search = currentSearch, page = 1) {
     });
 
     showResultCount(data, page);
+  })
+  .catch(() => {
+    document.getElementById("message").textContent =
+      "Could not reach the server. Please try again.";
   });
+}
+
+// Sessions expire after 30 minutes. Without this the table just empties and
+// nothing tells the user why.
+function handleLoadError(error) {
+  if (error.toLowerCase().indexOf("token") !== -1) {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+    return;
+  }
+  document.getElementById("message").textContent = error;
 }
 
 // The server only sends one page at a time, so the count comes from the
