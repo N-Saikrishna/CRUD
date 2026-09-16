@@ -8,7 +8,6 @@ servers:
 tags:
   - name: Auth
   - name: Contacts
-  - name: Legacy
 
 paths:
   /Register.php:
@@ -95,6 +94,68 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
 
+  /AddContact.php:
+    post:
+      tags: [Contacts]
+      operationId: addContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, firstName, lastName, phone, email]
+              properties:
+                token:     { type: string, example: '5f1c...64 hex chars' }
+                firstName: { type: string, example: John }
+                lastName:  { type: string, example: Doe }
+                phone:     { type: string, example: '4075550101' }
+                email:     { type: string, example: john.doe@example.com }
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddContactResponse' }
+        '400':
+          description: Invalid field
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /SearchContacts.php:
+    post:
+      tags: [Contacts]
+      operationId: searchContacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:    { type: string, example: '5f1c...64 hex chars' }
+                search:   { type: string, description: "Matches first or last name, case-insensitive; empty returns everything", example: jo }
+                page:     { type: integer, description: 1-based page number, default: 1, example: 1 }
+                pageSize: { type: integer, description: "Results per page, 1-200", default: 50, example: 50 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchContactsResponse' }
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /UpdateContact.php:
     post:
       tags: [Contacts]
@@ -105,23 +166,27 @@ paths:
           application/json:
             schema:
               type: object
-              required: [token, id, userId, firstName, lastName, phone, email]
+              required: [token, id, firstName, lastName, phone, email]
               properties:
                 token:     { type: string, example: '5f1c...64 hex chars' }
                 id:        { type: integer, example: 7 }
-                userId: { type: integer, example: 1 }
                 firstName: { type: string, example: John }
                 lastName:  { type: string, example: Doe }
                 phone:     { type: string, example: '4075550101' }
                 email:     { type: string, example: john.doe@example.com }
       responses:
         '200':
-          description: OK, or "Contact not found" if it isn't owned by the caller
+          description: Updated
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '401':
           description: Invalid or expired token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: No contact with that id owned by the caller
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -136,14 +201,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [token, id, userId]
+              required: [token, id]
               properties:
-                token:  { type: string, example: '5f1c...64 hex chars' }
-                id:     { type: integer, example: 7 }
-                userId: { type: integer, example: 1 }
+                token: { type: string, example: '5f1c...64 hex chars' }
+                id:    { type: integer, example: 7 }
       responses:
         '200':
-          description: OK, or "Contact not found" if it isn't owned by the caller
+          description: Deleted
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -152,60 +216,8 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
-
-  /AddColor.php:
-    post:
-      tags: [Legacy]
-      operationId: addColor
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [token, color]
-              properties:
-                token:  { type: string, example: '5f1c...64 hex chars' }
-                color:  { type: string, example: blue }
-                userId: { type: integer, example: 1 }
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Error' }
-        '401':
-          description: Invalid or expired token
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Error' }
-
-  /SearchColors.php:
-    post:
-      tags: [Legacy]
-      operationId: searchColors
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [token, search]
-              properties:
-                token:  { type: string, example: '5f1c...64 hex chars' }
-                search: { type: string, example: bl }
-                userId: { type: integer, example: 1 }
-      responses:
-        '200':
-          description: No matches returns the Login response shape instead of an empty array
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/SearchColorsResponse'
-                  - $ref: '#/components/schemas/LoginResponse'
-        '401':
-          description: Invalid or expired token
+        '404':
+          description: No contact with that id owned by the caller
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -235,11 +247,29 @@ components:
         expiresAt: { type: string, example: '2026-09-11 21:22:00' }
         error:     { type: string, example: '' }
 
-    SearchColorsResponse:
+    AddContactResponse:
+      type: object
+      properties:
+        id:    { type: integer, example: 7 }
+        error: { type: string, example: '' }
+
+    Contact:
+      type: object
+      properties:
+        id:          { type: integer, example: 7 }
+        firstName:   { type: string, example: John }
+        lastName:    { type: string, example: Doe }
+        phone:       { type: string, example: '4075550101' }
+        email:       { type: string, example: john.doe@example.com }
+        dateCreated: { type: string, example: '2026-09-11 21:22:00' }
+
+    SearchContactsResponse:
       type: object
       properties:
         results:
           type: array
-          items: { type: string }
-          example: [blue, black]
-        error: { type: string, example: '' }
+          items: { $ref: '#/components/schemas/Contact' }
+        page:     { type: integer, example: 1 }
+        pageSize: { type: integer, example: 50 }
+        total:    { type: integer, example: 3 }
+        error:    { type: string, example: '' }
