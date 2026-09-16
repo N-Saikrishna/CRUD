@@ -4,8 +4,9 @@ require_once __DIR__ . '/common.php';
 
 $in = json_decode(file_get_contents('php://input'), true);
 
-function sendJson($obj)
+function sendJson($obj, $status = 200)
 {
+    http_response_code($status);
     header('Content-Type: application/json');
     echo json_encode($obj);
     exit();
@@ -37,7 +38,7 @@ $stmt->bind_param("ssssii", $firstName, $lastName, $phone, $email, $id, $userId)
 $stmt->execute();
 
 if ($stmt->affected_rows === 0) {
-    sendJson(array("error" => "Contact not found"));
+    sendJson(array("error" => "Contact not found"), 404);
 }
 
 $stmt->close();

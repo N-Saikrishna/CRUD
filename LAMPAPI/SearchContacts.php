@@ -27,7 +27,7 @@ $like = "%" . escapeLike($search) . "%";
 
 // Paging happens in SQL, not in the browser. The assignment says assume
 // 10,000 contacts, so the client never receives more than one page.
-$pageSize = 50;
+$pageSize = isset($in["pageSize"]) ? max(1, min(200, (int)$in["pageSize"])) : 50;
 $page     = isset($in["page"]) ? max(1, (int)$in["page"]) : 1;
 $offset   = ($page - 1) * $pageSize;
 
