@@ -3,7 +3,7 @@ info:
   title: Contact Manager API
   version: 0.2.0
 servers:
-  - url: https://REPLACE_WITH_YOUR_DOMAIN.com/LAMPAPI
+  - url: https://cruddylit.com/LAMPAPI
 
 tags:
   - name: Auth
