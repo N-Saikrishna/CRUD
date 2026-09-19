@@ -31,6 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("nextPage").addEventListener("click", () => {
     loadContacts(currentSearch, currentPage + 1);
   });
+
+  document.getElementById("logoutButton").addEventListener("click", doLogout);
 });
 
 function loadContacts(search = currentSearch, page = 1) {
@@ -240,5 +242,17 @@ function addContact(e) {
     }
     document.getElementById("addContactForm").reset();
     loadContacts();
+  });
+}
+
+function doLogout() {
+  fetch(urlBase + '/Logout.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ token: token })
+  })
+  .then(() => {
+    localStorage.clear();
+    window.location.href = "index.html";
   });
 }
