@@ -18,17 +18,17 @@ JSON to our PHP files and they talk to the database.
 ## What is in here
 
 ```
-LAMPAPI/     the PHP endpoints
-sql/         schema.sql, seed.sql, create_db_user.sql
+LAMPAPI/     the PHP endpoints and the shared helpers
+sql/         schema.sql, seed.sql, create_db_user.sql, the DateCreated migration
 ERD/         the entity relationship diagram
-docs/        API_CONTRACT.md
+docs/        API_CONTRACT.md, lighthouse-report.md
 openapi.yaml the SwaggerHub spec
 css/  js/    front end
 ```
 
 ## Where things stand
 
-### Done
+Everything the assignment asks for is built and running on the live site.
 
 - **Server.** Ubuntu droplet, Apache, MySQL, PHP. Domain bought and pointed at it.
   HTTPS with a Let's Encrypt certificate that renews itself. Directory listing turned off.
@@ -41,35 +41,44 @@ css/  js/    front end
   is scoped with `AND UserID = ?` so nobody can reach someone else's contacts.
 - **Search.** Partial match on first and last name, case insensitive, with paging done
   in SQL so the browser never receives every row.
-- **Login and register page.** `index.html`, both forms, real labels on every input.
-- **Use case, activity and sequence diagrams.**
-
-### Left to do
-
-- **`js/auth.js`** so the login and register forms actually call the API. The page is
-  built and the endpoints work, this is the missing wire between them.
-- **`contacts.html` finished.** The table is still hardcoded HTML. It needs `contacts.js`
-  to fetch from `SearchContacts.php`, plus the add and edit forms, the search box and
-  the delete confirmation.
-- **Deploy.** Everything above is on `dev`. The server is still running an older copy.
-- **Test data on the server.** `sql/seed.sql` has not been run yet.
-- **10,000 test contacts** so we can prove search is still fast at that size.
-- **Lighthouse accessibility report** on the live site.
-- **SwaggerHub.** `openapi.yaml` is written but has not been imported yet.
-- **Gantt chart** updated for the real deadline.
-- **The slide deck.**
+- **Front end.** `index.html` for log in and register, `contacts.html` for the list.
+  `auth.js` saves the session token. `contacts.js` loads, searches, adds, edits and
+  deletes, with paging controls and a result count.
+- **Use case, activity and sequence diagrams.** All three, in the slide deck.
+- **10,006 test contacts** on the demo account. Searching "jo" returns 269 matches in
+  0.18 seconds, and page 200 comes back just as fast.
+- **Lighthouse accessibility report.** 92 on the live contacts page, written up in
+  `docs/lighthouse-report.md`. The one failure left is a Bootstrap grey at 4.45:1
+  against the page background, just under the 4.5:1 minimum.
+- **SwaggerHub.** `openapi.yaml` imported, all seven endpoints documented.
+- **Gantt chart and slide deck.**
 
 ## Who is doing what
 
 | Person | Job |
 |---|---|
-| Haren | Project manager, plus four of the endpoints and the diagrams |
-| Mohammed | Database and the ERD |
-| Jeremy | Server, domain, HTTPS, deploying and test data |
-| Devam | API foundation, register and login, SwaggerHub |
-| Pranav | API for adding, listing and searching contacts |
-| Kareem | Contacts page |
-| Saikrishna | Login and register wiring, accessibility, Lighthouse |
+| Haren | Project manager. Add, Search, Update and Delete contact endpoints, the login and register page, paging on the contacts page, the three UML diagrams, the Gantt chart and the deck |
+| Devam | Database schema, the shared helper layer every endpoint calls, the OpenAPI spec and SwaggerHub |
+| Pranav | MySQL connection layer, session token helpers, and the register, login and logout endpoints |
+| Jeremy | Server, domain, HTTPS, every deployment and migration, and the test data |
+| Saikrishna | Login and register wiring, contacts page behaviour, accessibility and the Lighthouse report |
+| Kareem | Contacts page markup, Bootstrap styling and the log out button |
+| Mohammed | The entity relationship diagram |
+
+## Use of AI
+
+We used Claude on this project and want to be upfront about where.
+
+Most of it was the LAMP side. It helped write and structure the PHP endpoints, work out
+the session token and prepared statement patterns, and reorganise the code as it grew,
+which is how all seven endpoints ended up going through one shared helper layer and one
+connection function instead of each doing its own thing. We also used it for debugging,
+for the documentation in this repo, and for the UML diagrams and the Gantt chart.
+
+It did not replace review or testing. Nothing reached `dev` without a pull request and an
+approving review from another person, everything was tested against the live server, and
+each of us can walk through and explain the code committed under our name. AI output was
+wrong more than once and those were caught in review or in testing and fixed.
 
 ## How to work on this repo
 
