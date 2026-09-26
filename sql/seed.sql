@@ -15,5 +15,6 @@ INSERT INTO Contacts (UserID, FirstName, LastName, Phone, Email, DateCreated) VA
 INSERT INTO Contacts (UserID, FirstName, LastName, Phone, Email, DateCreated) VALUES
   (2, 'Private', 'Contact', '4075550999', 'private@example.com', NOW());
 
-INSERT INTO Sessions (Token, UserID, ExpiresAt) VALUES
-  ('devtoken0000000000000000000000000000000000000000000000000000face', 1, '2030-01-01 00:00:00');
+-- No session rows are seeded. A session token is a live credential, and this repo
+-- is public, so anything seeded here would be a working login for anyone who read
+-- the file. Log in through Login.php to get one.

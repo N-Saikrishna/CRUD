@@ -67,33 +67,6 @@ Response (200):
 { "error": "Session token has expired" }
 ```
 
-### POST /LAMPAPI/AddColor.php
-
-Request:
-```json
-{ "token": "<64-char hex>", "color": "blue" }
-```
-
-Response:
-```json
-{ "error": "" }
-```
-
-### POST /LAMPAPI/SearchColors.php
-
-Request:
-```json
-{ "token": "<64-char hex>", "search": "bl" }
-```
-
-Response:
-```json
-{ "results": ["blue", "black"], "error": "" }
-```
-```json
-{ "id": 0, "firstName": "", "lastName": "", "error": "No Records Found" }
-```
-
 ### POST /LAMPAPI/UpdateContact.php
 
 Request:
