@@ -103,60 +103,109 @@ h1 {
 	background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
 
-/* ---------- Tabs (login / register) ---------- */
-
-.nav-tabs {
-	border-bottom: 1px solid var(--border-soft);
-	gap: 0.25rem;
-}
-
-.nav-tabs .nav-link {
-	border: none;
-	border-radius: 0;
-	color: var(--text-muted);
-	font-size: 0.92rem;
-	letter-spacing: 0.04em;
-	padding: 0.7rem 1.15rem;
-	background: transparent;
-	position: relative;
-	transition: color 0.2s ease;
-}
-
-.nav-tabs .nav-link::after {
-	content: "";
-	position: absolute;
-	left: 1.15rem;
-	right: 1.15rem;
-	bottom: -1px;
-	height: 2px;
-	background: var(--gold);
-	transform: scaleX(0);
-	transition: transform 0.2s ease;
-}
-
-.nav-tabs .nav-link:hover {
-	color: var(--text-primary);
-}
-
-.nav-tabs .nav-link.active {
-	color: var(--gold-bright);
-	background: transparent;
-}
-
-.nav-tabs .nav-link.active::after {
-	transform: scaleX(1);
-}
-
 .bg-logo {
 	position: fixed;
-	top: 50%;
-	left: 47%;
-	transform: translate(-50%, -50%);
-	width: min(60vw, 900px);
+	top: 58%;
+	right: 0;
+	transform: translateY(-50%);
+	width: min(55vw, 850px);
 	height: auto;
 	opacity: 0.14;
 	z-index: -1;
 	pointer-events: none;
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar-accent {
+	height: 6px;
+	background: var(--gold);
+}
+
+.topbar {
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem 2rem;
+	background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+	border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.topbar-brand {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.topbar-brand .brand-mark {
+	background: #111111;
+	color: var(--gold-bright);
+	box-shadow: none;
+}
+
+.topbar-title {
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-weight: 600;
+	font-size: 1.1rem;
+	color: #111111;
+}
+
+.btn-login-topbar {
+	background: #000000;
+	border: 1px solid var(--gold-dim);
+	color: #ffffff;
+	font-weight: 600;
+	transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-login-topbar:hover,
+.btn-login-topbar:focus {
+	background: #1a1a1a;
+	border-color: var(--gold-bright);
+	color: #ffffff;
+}
+
+/* ---------- Hero (welcome page) ---------- */
+
+.hero {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 2.5rem;
+	min-height: calc(100vh - 85px);
+	padding: 2.5rem 6vw;
+}
+
+.hero-left {
+	max-width: 480px;
+	flex-shrink: 0;
+	text-align: center;
+}
+
+.hero-left .brand-bar {
+	justify-content: flex-start;
+}
+
+.hero-left h1 {
+	text-align: left;
+}
+
+.hero-left .page-subtitle {
+	text-align: center;
+}
+
+.hero-left .gold-rule {
+	margin: 0 auto 2.25rem;
+}
+
+.hero-right {
+	width: 100%;
+	max-width: 440px;
 }
 
 /* ---------- Cards / panels ---------- */
