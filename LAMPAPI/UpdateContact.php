@@ -1,0 +1,47 @@
+<?php
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/common.php';
+
+$in = json_decode(file_get_contents('php://input'), true);
+
+function sendJson($obj, $status = 200)
+{
+    http_response_code($status);
+    header('Content-Type: application/json');
+    echo json_encode($obj);
+    exit();
+}
+
+foreach (array('id', 'firstName', 'lastName', 'phone', 'email') as $field) {
+    if (!isset($in[$field])) {
+        sendJson(array("error" => "Missing required field: " . $field));
+    }
+}
+
+$token = isset($in["token"]) ? $in["token"] : "";
+
+$conn = getConnection();
+
+$userId = resolveSessionUserId($conn, $token);
+
+$firstName = $in["firstName"];
+$lastName  = $in["lastName"];
+$phone     = $in["phone"];
+$email     = $in["email"];
+$id        = (int)$in["id"];
+
+$stmt = $conn->prepare(
+    "UPDATE Contacts SET FirstName=?, LastName=?, Phone=?, Email=?
+     WHERE ID=? AND UserID=?"
+);
+$stmt->bind_param("ssssii", $firstName, $lastName, $phone, $email, $id, $userId);
+$stmt->execute();
+
+if ($stmt->affected_rows === 0) {
+    sendJson(array("error" => "Contact not found"), 404);
+}
+
+$stmt->close();
+$conn->close();
+sendJson(array("error" => ""));
+?>

@@ -1,59 +1,58 @@
-
 <?php
 
-	$inData = getRequestInfo();
-	
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
+require_once __DIR__ . '/common.php';
+require_once __DIR__ . '/db.php';
 
-    require_once 'config.php';
-	$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-	if( $conn->connect_error )
-	{
-		returnWithError( $conn->connect_error );
-	}
-	else
-	{
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
-		$stmt->execute();
-		$result = $stmt->get_result();
+function loginUser(array $body): array
+{
+    $login = requireField($body, 'login');
+    $password = requireField($body, 'password');
 
-		if( $row = $result->fetch_assoc()  )
-		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['ID'] );
-		}
-		else
-		{
-			returnWithError("No Records Found");
-		}
+    $conn = getConnection();
+    $stmt = $conn->prepare('SELECT ID, FirstName, LastName, Password FROM Users WHERE Login = ? LIMIT 1');
+    $stmt->bind_param('s', $login);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
 
-		$stmt->close();
-		$conn->close();
-	}
-	
-	function getRequestInfo()
-	{
-		return json_decode(file_get_contents('php://input'), true);
-	}
+    if (!$user) {
+        $conn->close();
+        sendError('Invalid login credentials', 401);
+    }
 
-	function sendResultInfoAsJson( $obj )
-	{
-		header('Content-type: application/json');
-		echo $obj;
-	}
-	
-	function returnWithError( $err )
-	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-	function returnWithInfo( $firstName, $lastName, $id )
-	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-?>
+    if (!password_verify($password, $user['Password'])) {
+        $conn->close();
+        sendError('Invalid login credentials', 401);
+    }
+
+    $issued = issueSessionToken();
+    $token = $issued['token'];
+    $expiresAt = $issued['expiresAt'];
+
+    $sessionStmt = $conn->prepare('INSERT INTO Sessions (Token, UserID, ExpiresAt) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ExpiresAt = VALUES(ExpiresAt)');
+    $sessionStmt->bind_param('sis', $token, $user['ID'], $expiresAt);
+    $sessionStmt->execute();
+    $sessionStmt->close();
+    $conn->close();
+
+    return [
+        'id' => (int)$user['ID'],
+        'firstName' => $user['FirstName'],
+        'lastName' => $user['LastName'],
+        'token' => $token,
+        'expiresAt' => $expiresAt,
+        'error' => '',
+    ];
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    sendHeaders();
+    $body = readJsonBody();
+    $result = loginUser($body);
+    sendResult($result, 200);
+}
+
+sendHeaders();
+sendError('Only POST is supported on this endpoint', 405);
+
