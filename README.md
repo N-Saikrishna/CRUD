@@ -65,20 +65,30 @@ Everything the assignment asks for is built and running on the live site.
 | Kareem | Contacts page markup, Bootstrap styling and the log out button |
 | Mohammed | The entity relationship diagram |
 
-## Use of AI
+## AI Assistance Disclosure
 
-We used Claude on this project and want to be upfront about where.
+This project was developed with assistance from generative AI tools.
 
-Most of it was the LAMP side. It helped write and structure the PHP endpoints, work out
-the session token and prepared statement patterns, and reorganise the code as it grew,
-which is how all seven endpoints ended up going through one shared helper layer and one
-connection function instead of each doing its own thing. We also used it for debugging,
-for the documentation in this repo, and for the UML diagrams and the Gantt chart.
+- **Tool**: Claude (Anthropic), used through Claude Code in VS Code
+- **Dates**: August–September 2026
+- **Scope**: PHP REST API development on the LAMP stack, database security
+  patterns (prepared statements, session tokens), refactoring the shared helper
+  layer, repository documentation, UML diagrams, and the Gantt chart.
+- **Nature of use**:
+  - *Code generation and scaffolding*: drafted initial PHP endpoint structures,
+    session validation routines, and the centralized database connection function.
+  - *Refactoring*: reorganized redundant endpoint logic into one shared helper
+    layer and one connection function across all seven endpoints.
+  - *Debugging and planning*: diagnosed API errors, drafted the draw.io UML
+    diagrams, and outlined the Gantt chart timeline.
 
-It did not replace review or testing. Nothing reached `dev` without a pull request and an
-approving review from another person, everything was tested against the live server, and
-each of us can walk through and explain the code committed under our name. AI output was
-wrong more than once and those were caught in review or in testing and fixed.
+All AI-generated suggestions were reviewed, tested against the live server, and
+modified before merging through peer-reviewed pull requests. AI output was wrong
+more than once — a database config mismatch and a search paging bug were both
+caught in review or testing and fixed. Final implementation and architectural
+decisions reflect the team's understanding of the system, and each member can
+explain the code committed under their name.
+
 
 ## How to work on this repo
 
