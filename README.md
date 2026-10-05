@@ -134,29 +134,7 @@ cp ~/config.backup LAMPAPI/config.php
 `config.php` holds the real database password and is not tracked in git, so a plain
 pull deletes it and the site goes down. Back it up first, put it back after.
 
-## Rules from the assignment
 
-- LAMP only. No Node, no Python.
-- The front end always goes through the API, never straight to MySQL.
-- Search runs on the server. Do not load every contact into the browser and filter there.
-- Search has to match partial text and ignore capitals. Typing "jo" finds John and Jones.
-- No popup alerts anywhere except the one asking if you really want to delete a contact.
-- The site has to run on a real server and be reached by a domain name, not an IP.
-- Assume 10,000 contacts and make sure search is still fast.
-
-## Things that are graded and easy to forget
-
-- **Lighthouse accessibility report.** Chrome scores our live site. Open it in Chrome,
-  press F12, go to the Lighthouse tab, check Accessibility, click Analyze. Save the
-  report and screenshot the score for the slides. Run it early, it is much harder to fix
-  at the end. The basics: every page starts with `<!DOCTYPE html>` and `<html lang="en">`,
-  has a charset and a viewport tag, every input has a real `<label>`, and text has enough
-  contrast against its background.
-- **Three diagrams, not one.** Use case, activity and sequence. All three are needed.
-- **The ERD** is its own separate item.
-- **SwaggerHub demo.** Document everything, but only demo one or two endpoints live.
-- **Code reviews and documentation count** toward the individual grade, not just commits.
-- **Everyone submits the slides.** Not submitting is a zero for that person.
 
 ## Never commit
 
